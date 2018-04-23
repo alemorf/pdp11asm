@@ -86,6 +86,10 @@ void chdirToFile(const char* fileName)
 std::wstring replaceExtension(const std::wstring& fileName, const char* ext) {
     size_t s = fileName.rfind('.');
     if(s==std::string::npos || fileName.find('/', s)!=std::string::npos || fileName.find('\\', s)!=std::string::npos) return fileName;
+    if(ext[0] == '\0') {
+        // No extension
+        return fileName.substr(0, s);
+    }
     std::wstring w;
     return fileName.substr(0,s+1) + fromUtf8(w, ext);
 }
@@ -133,6 +137,10 @@ void chdirToFile(const char* fileName) {
 std::string replaceExtension(const std::string& fileName, const char* ext) {
     size_t s = fileName.rfind('.');
     if(s==std::string::npos || fileName.find('/', s)!=std::string::npos || fileName.find('\\', s)!=std::string::npos) return fileName;
+    if(ext[0] == '\0') {
+        // No extension
+        return fileName.substr(0, s);
+    }
     return fileName.substr(0,s+1) + ext;
 }
 

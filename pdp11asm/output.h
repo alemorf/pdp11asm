@@ -22,7 +22,7 @@ public:
   }
 
   inline void init() {
-    writePtr = 0;
+    writePtr = 01000;
     writePosChanged = 0;
     min = 0xFFFF, max = 0;
   }

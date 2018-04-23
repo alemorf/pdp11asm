@@ -55,6 +55,8 @@ Parser::Parser() {
   loadedText[0] = 0;
   loadedTextSize = 0;
 
+  linkFrom = 01000;
+
   init("");
 }
 
@@ -97,9 +99,9 @@ void Parser::nextToken() {
   sigCursor = cursor;
 
     do {
-        for(;*cursor==32 || *cursor==13 || (!cfg.eol && *cursor==10) || *cursor==9; cursor++)
-            if(*cursor==10) { line++; col=1; }
-            else if(*cursor!=13) col++;
+        for(;*cursor==' ' || *cursor=='\r' || (!cfg.eol && *cursor=='\n') || *cursor=='\t'; cursor++)
+            if(*cursor=='\n') { line++; col=1; }
+            else if(*cursor!='\r') col++;
 
         // Парсим
         tokenText[0]=0;
@@ -116,10 +118,10 @@ retry:
             token=ttEof;
             return;
         }
-        if(c!=' ' && c!=10 && c!=13 && c!=9) break;
+        if(c!=' ' && c!='\n' && c!='\r' && c!='\t') break;
         cursor++;
-        if(c==10) line++, col=1;
-        if(cfg.eol && c==10) {
+        if(c=='\n') line++, col=1;
+        if(cfg.eol && c=='\n') {
             token=ttEol;
             return;
         }
@@ -160,7 +162,7 @@ retry:
       if(!m->disabled && 0==strcmp(m->id.c_str(), tokenText)) {
         nextToken();
         if(m->args.size()>0) {
-          if(token!=ttOperator || 0!=strcmp(tokenText, "(")) syntaxError();
+          if(token!=ttOperator || 0!=strcmp(tokenText, "(")) syntaxError("Expected operator or (");
           std::vector<std::string> noArgs;
           for(unsigned int j=0; j<m->args.size(); j++) {
             std::string out;
@@ -184,7 +186,7 @@ void Parser::exitPrep()
 {
     cfg = prepCfg;
     macroOff = false;
-    if(token!=ttEof && token!=ttEol) syntaxError();
+    if(token!=ttEof && token!=ttEol) syntaxError("Expected EOF or EOL");
 }
 
 //-----------------------------------------------------------------------------
@@ -275,10 +277,15 @@ void Parser::nextToken2() {
     return;
   }
 
+  bool neg = false;
+  if(c=='-') {
+    neg = true;
+    if(*cursor>='0' && *cursor<='9') {
+      c = *cursor++;
+    }
+  }
   if(c>='0' && c<='9') {
     int radix = 0;
-    bool neg = (c=='-');
-    if(neg) c = *cursor++;
 
     // Если число начинается с 0x - то читаем 16-ричное    
     if(c=='0' && radix==0) {

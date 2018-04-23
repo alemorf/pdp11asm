@@ -76,7 +76,7 @@ xxx:
     a.code = short((mode<<3) | reg);
     return;
   }
-  if(n) p.syntaxError();
+  if(n) p.syntaxError("Unexpected #");
   bool d = p.ifToken("-");
   a.used = false;
   if(!d) {

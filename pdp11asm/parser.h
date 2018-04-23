@@ -26,9 +26,11 @@ public:
         void (*prep)(Parser& p);
     };
 
-  typedef uint32_t num_t;
+  typedef int32_t num_t;
   static const size_t maxTokenText = 256;
   typedef char TokenText[maxTokenText];
+
+  size_t linkFrom;
 
   // ���������
   Config cfg;
@@ -82,7 +84,7 @@ public:
   inline void needToken(Token t) { if(token != t) syntaxError(); nextToken(); }
   inline const char* needIdent() { needToken(ttWord); return loadedText; }
   bool ifToken(const char* text);  
-  inline void needToken(const char* text) { if(!ifToken(text)) syntaxError(); }
+  inline void needToken(const char* text) { if(!ifToken(text)) syntaxError(text); }
   bool ifToken(const char** a, unsigned &n);
   inline unsigned needToken(const char** a) { unsigned n; if(!ifToken(a, n)) syntaxError(); return n; }
 
